@@ -11,9 +11,6 @@ vendor/
 !vendor/autoload.php
 !vendor/composer/
 
-# Composer binaries
-composer.phar
-
 # Build / coverage
 coverage/
 build/
