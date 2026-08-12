@@ -26,6 +26,30 @@ use SilverAssist\SettingsHub\SettingsHub;
 class SettingsPage implements LoadableInterface {
 
 	/**
+	 * Singleton instance.
+	 *
+	 * @var self|null
+	 */
+	private static ?self $instance = null;
+
+	/**
+	 * Returns the singleton instance.
+	 *
+	 * @return static
+	 */
+	public static function instance(): static {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
+	 * Private constructor — use instance() instead.
+	 */
+	private function __construct() {}
+
+	/**
 	 * WordPress option names managed by this plugin.
 	 *
 	 * @var string[]

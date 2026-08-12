@@ -31,6 +31,25 @@ use WPCF7_Submission;
 class Integration implements LoadableInterface {
 
 	/**
+	 * Singleton instance.
+	 *
+	 * @var self|null
+	 */
+	private static ?self $instance = null;
+
+	/**
+	 * Returns the singleton instance.
+	 *
+	 * @return static
+	 */
+	public static function instance(): static {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
 	 * API client used to deliver messages.
 	 *
 	 * @var ApiClient
@@ -38,9 +57,9 @@ class Integration implements LoadableInterface {
 	private ApiClient $api_client;
 
 	/**
-	 * Constructor.
+	 * Private constructor — use instance() instead.
 	 */
-	public function __construct() {
+	private function __construct() {
 		$this->api_client = new ApiClient();
 	}
 
