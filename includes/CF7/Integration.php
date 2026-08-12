@@ -45,21 +45,27 @@ class Integration implements LoadableInterface {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Returns false when Contact Form 7 is not active.
+	 *
+	 * @return bool
 	 */
 	public function should_load(): bool {
 		return \class_exists( 'WPCF7_ContactForm' );
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Returns 20 — loads after core services, before admin components.
+	 *
+	 * @return int
 	 */
 	public function get_priority(): int {
 		return 20;
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Registers all CF7 action and filter hooks.
+	 *
+	 * @return void
 	 */
 	public function init(): void {
 		// 3 args: $form, &$abort, $submission — accept abort flag to suppress CF7's own mailer.

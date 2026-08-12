@@ -32,17 +32,17 @@ class SettingsPage implements LoadableInterface {
 	 */
 	private const OPTIONS = [ 'paubox_api_key', 'paubox_api_user' ];
 
-	/** {@inheritDoc} */
+	/** Returns false when not in the admin or when SettingsHub is unavailable. */
 	public function should_load(): bool {
 		return \is_admin() && \class_exists( SettingsHub::class );
 	}
 
-	/** {@inheritDoc} */
+	/** Returns 30 — loads after core (10) and integration (20). */
 	public function get_priority(): int {
 		return 30;
 	}
 
-	/** {@inheritDoc} */
+	/** Registers settings and the Settings Hub admin menu entry. */
 	public function init(): void {
 		\add_action( 'admin_init', [ $this, 'register_settings' ] );
 		// Priority 4 so we register before Settings Hub renders at priority 5.

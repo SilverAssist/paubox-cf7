@@ -39,14 +39,18 @@ final class Plugin extends AbstractPlugin {
 	private ?Updater $updater = null;
 
 	/**
-	 * {@inheritDoc}
+	 * Returns false when Contact Form 7 is not active, skipping all components.
+	 *
+	 * @return bool
 	 */
 	public function should_load(): bool {
 		return \class_exists( 'WPCF7_ContactForm' );
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Returns the components this plugin loads, in priority order.
+	 *
+	 * @return class-string[]
 	 */
 	protected function get_components(): array {
 		return [
@@ -56,7 +60,9 @@ final class Plugin extends AbstractPlugin {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Runs plugin-level setup that runs alongside component loading.
+	 *
+	 * @return void
 	 */
 	protected function init_hooks(): void {
 		$this->init_updater();
