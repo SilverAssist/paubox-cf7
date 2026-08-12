@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 1.0.0). Leave empty to use plugin file version.'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Detect version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          elif [[ -n "${{ github.event.inputs.version }}" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=$(grep -o 'Version: [0-9]\+\.[0-9]\+\.[0-9]\+' *.php 2>/dev/null | head -1 | cut -d' ' -f2)
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Install dependencies (prod only)
+        run: composer install --no-dev --no-interaction --optimize-autoloader
+
+      - name: Build release ZIP
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          PLUGIN_SLUG="paubox-cf7"
+          ZIP_NAME="${PLUGIN_SLUG}-v${VERSION}.zip"
+          mkdir -p "build/${PLUGIN_SLUG}"
+          rsync -a --exclude='build' --exclude='.git' --exclude='.github' \
+            --exclude='tests' --exclude='scripts' --exclude='.gitignore' \
+            --exclude='phpcs.xml' --exclude='phpstan.neon' --exclude='phpunit.xml' \
+            --exclude='*.md' --exclude='composer.lock' \
+            . "build/${PLUGIN_SLUG}/"
+          cd build && zip -r "../${ZIP_NAME}" "${PLUGIN_SLUG}/"
+          echo "zip_name=${ZIP_NAME}" >> $GITHUB_OUTPUT
+          echo "Built: ${ZIP_NAME}"
+        id: build
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2.2.2
+        with:
+          tag_name: "v${{ steps.version.outputs.version }}"
+          name: "v${{ steps.version.outputs.version }}"
+          files: "${{ steps.build.outputs.zip_name }}"
+          generate_release_notes: true

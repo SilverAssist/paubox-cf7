@@ -1,0 +1,24 @@
+# WordPress Plugin .gitignore
+
+# Logs
+*.log
+
+# Dependency directories
+node_modules/
+
+# Composer vendor (installed at build/CI time)
+vendor/
+!vendor/autoload.php
+!vendor/composer/
+
+# Composer binaries
+composer.phar
+
+# Build / coverage
+coverage/
+build/
+
+# macOS
+.DS_Store
+*.swp
+.phpcs-cache

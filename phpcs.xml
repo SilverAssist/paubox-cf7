@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="Paubox CF7 Integration">
+    <arg name="basepath" value="."/>
+    <arg name="cache" value=".phpcs-cache"/>
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <arg name="parallel" value="80"/>
+    <arg value="p"/>
+    <arg value="s"/>
+
+    <file>includes</file>
+    <file>tests</file>
+    <file>paubox-cf7.php</file>
+
+    <rule ref="SilverAssistWP">
+        <exclude name="WordPress.Files.FileName"/>
+        <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound"/>
+        <exclude name="Universal.Operators.DisallowShortTernary"/>
+        <exclude name="WordPress.PHP.YodaConditions"/>
+    </rule>
+
+    <rule ref="WordPress.PHP.DevelopmentFunctions">
+        <exclude-pattern>tests/*</exclude-pattern>
+    </rule>
+
+    <config name="minimum_wp_version" value="6.5"/>
+
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <element value="paubox_cf7"/>
+                <element value="SilverAssist\PauboxCF7"/>
+            </property>
+        </properties>
+    </rule>
+
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="paubox-cf7"/>
+            </property>
+        </properties>
+    </rule>
+
+    <exclude-pattern>vendor/*</exclude-pattern>
+    <exclude-pattern>node_modules/*</exclude-pattern>
+    <exclude-pattern>*.min.*</exclude-pattern>
+    <exclude-pattern>languages/*</exclude-pattern>
+    <exclude-pattern>.phpcs-cache/*</exclude-pattern>
+</ruleset>

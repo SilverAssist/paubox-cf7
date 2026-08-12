@@ -1,0 +1,22 @@
+name: CI
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  quality:
+    name: Quality Checks (PHP 8.2)
+    uses: ./.github/workflows/quality-checks.yml
+    with:
+      php-version: "8.2"
+
+  quality-php-83:
+    name: Quality Checks (PHP 8.3)
+    uses: ./.github/workflows/quality-checks.yml
+    with:
+      php-version: "8.3"

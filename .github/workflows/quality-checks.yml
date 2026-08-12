@@ -1,0 +1,83 @@
+name: Quality Checks (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        description: "PHP version to use"
+        required: false
+        type: string
+        default: "8.2"
+
+jobs:
+  quality-checks:
+    name: Quality Checks (PHP ${{ inputs.php-version }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: paubox_cf7_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ inputs.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+          extensions: curl, dom, json, libxml, mbstring, mysqli, xmlwriter
+          coverage: none
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ inputs.php-version }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ inputs.php-version }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --optimize-autoloader
+
+      - name: Install Subversion (required for WordPress Test Suite)
+        run: sudo apt-get update && sudo apt-get install -y subversion
+
+      - name: Install WordPress Test Suite
+        env:
+          WP_VERSION: latest
+          DB_NAME: paubox_cf7_test
+          DB_USER: root
+          DB_PASS: root
+          DB_HOST: 127.0.0.1
+        run: |
+          bash scripts/install-wp-tests.sh paubox_cf7_test root root 127.0.0.1 latest true
+
+      - name: Run PHPCS
+        run: composer phpcs
+
+      - name: Run PHPStan
+        run: composer phpstan
+
+      - name: Run PHPUnit (unit)
+        run: composer test
+
+      - name: Run PHPUnit (integration)
+        env:
+          WP_TESTS_DIR: /tmp/wordpress-tests-lib
+          WP_CORE_DIR: /tmp/wordpress
+          TESTSUITE: integration
+        run: vendor/bin/phpunit --testsuite=integration

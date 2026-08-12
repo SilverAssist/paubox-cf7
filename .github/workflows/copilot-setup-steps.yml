@@ -1,0 +1,41 @@
+name: Copilot Setup Steps
+
+on:
+  workflow_dispatch:
+
+jobs:
+  copilot-setup-steps:
+    name: Setup PHP Dependencies for Copilot Agent
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, mysqli, sodium
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-copilot-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            composer-copilot-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Verify installation
+        run: |
+          vendor/bin/phpcs --version
+          vendor/bin/phpstan --version
+          vendor/bin/phpunit --version
+          echo "All tools ready for Copilot Coding Agent."
