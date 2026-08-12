@@ -1,12 +1,14 @@
 <?php
 /**
- * Paubox HTTP API client service.
+ * Paubox CF7 Integration — HTTP API Client
  *
- * @package SilverAssist\PauboxCF7
- * @copyright Silver Assist. All rights reserved.
+ * Handles all communication with the Paubox REST API: builds the
+ * authenticated request, processes submission data and attachments,
+ * and returns the raw WP HTTP response or a WP_Error on failure.
+ *
+ * @package SilverAssist\PauboxCF7\Service
+ * @since   1.0.0
  * @version 1.0.0
- * @since 1.0.0
- * @author Silver Assist
  */
 
 namespace SilverAssist\PauboxCF7\Service;

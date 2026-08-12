@@ -1,12 +1,14 @@
 <?php
 /**
- * CF7 integration component.
+ * Paubox CF7 Integration — CF7 Integration Component
  *
- * @package SilverAssist\PauboxCF7
- * @copyright Silver Assist. All rights reserved.
+ * Registers Contact Form 7 hooks for the Paubox encrypted-email API:
+ * intercepts form submissions, renders the editor settings panel,
+ * and persists per-form configuration.
+ *
+ * @package SilverAssist\PauboxCF7\CF7
+ * @since   1.0.0
  * @version 1.0.0
- * @since 1.0.0
- * @author Silver Assist
  */
 
 namespace SilverAssist\PauboxCF7\CF7;

@@ -1,12 +1,13 @@
 <?php
 /**
- * Main plugin bootstrap.
+ * Paubox CF7 Integration — Main Plugin Bootstrap
  *
- * @package SilverAssist\PauboxCF7
- * @copyright Silver Assist. All rights reserved.
+ * Extends AbstractPlugin to register the CF7 integration component
+ * and guard against loading when Contact Form 7 is absent.
+ *
+ * @package SilverAssist\PauboxCF7\Core
+ * @since   1.0.0
  * @version 1.0.0
- * @since 1.0.0
- * @author Silver Assist
  */
 
 namespace SilverAssist\PauboxCF7\Core;
