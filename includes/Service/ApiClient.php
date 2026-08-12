@@ -1,5 +1,7 @@
 <?php
 /**
+ * Paubox HTTP API client service.
+ *
  * @package SilverAssist\PauboxCF7
  * @copyright Silver Assist. All rights reserved.
  * @version 1.0.0
@@ -46,13 +48,16 @@ class ApiClient {
 		$api_user = get_option( 'paubox_api_user' );
 
 		if ( empty( $api_key ) || empty( $api_user ) ) {
-			trigger_error( 'Paubox API key or user is not set.', E_USER_WARNING );
+			wp_trigger_error( __METHOD__, 'Paubox API key or user is not set.', E_USER_WARNING );
 			return new WP_Error( 'paubox_api_error', 'Paubox API key or user is not set.' );
 		}
 
+		// Filter out blank and malformed addresses before further processing.
+		$recipients = \array_values( \array_filter( \array_map( 'sanitize_email', $recipients ) ) );
+
 		if ( empty( $recipients ) ) {
-			trigger_error( 'Paubox API Error: No recipients provided.', E_USER_WARNING );
-			return new WP_Error( 'paubox_api_error', 'No recipients provided.' );
+			wp_trigger_error( __METHOD__, 'Paubox API Error: No valid recipients provided.', E_USER_WARNING );
+			return new WP_Error( 'paubox_api_error', 'No valid recipients provided.' );
 		}
 
 		$endpoint = sprintf( 'https://api.paubox.net/v1/%s/messages', rawurlencode( $api_user ) );
@@ -84,7 +89,19 @@ class ApiClient {
 
 		$response = wp_remote_post( $endpoint, $args );
 
-		do_action( 'after_paubox_cf7_api_send_lead', $response, $body );
+		do_action( 'paubox_cf7_after_send_lead', $response, $body );
+
+		// Return a WP_Error for transport failures and non-2xx HTTP responses.
+		if ( \is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$http_code = (int) wp_remote_retrieve_response_code( $response );
+		if ( $http_code < 200 || $http_code >= 300 ) {
+			$body_text = wp_remote_retrieve_body( $response );
+			wp_trigger_error( __METHOD__, "Paubox API returned HTTP {$http_code}", E_USER_WARNING );
+			return new \WP_Error( 'paubox_api_http_error', "Paubox API returned HTTP {$http_code}", [ 'status' => $http_code ] );
+		}
 
 		return $response;
 	}
@@ -108,7 +125,7 @@ class ApiClient {
 				$values = [];
 				foreach ( $posted[ $form_key ] ?? [] as $value ) {
 					if ( $value ) {
-						$value    = apply_filters( 'set_record_value', $value, $api_key );
+						$value    = apply_filters( 'paubox_cf7_record_value', $value, $api_key );
 						$values[] = $value;
 					}
 				}
@@ -131,7 +148,10 @@ class ApiClient {
 			}
 		}
 
-		$record = apply_filters( 'cf7api_create_record', $template, $posted, $data, $template );
+		// Strip any remaining unmatched [tag] placeholders.
+		$template = (string) preg_replace( '/\[[^\]]+\]/', '', $template );
+
+		$record = apply_filters( 'paubox_cf7_create_record', $template, $posted, $data, $template );
 
 		return (string) $record;
 	}
@@ -156,12 +176,12 @@ class ApiClient {
 			}
 			foreach ( $paths as $file ) {
 				if ( ! empty( $file ) && \file_exists( $file ) ) {
-					$info                   = \pathinfo( $file );
-					$attachment             = new stdClass();
-					$attachment->fileName    = $info['basename'];
-					$attachment->contentType = \mime_content_type( $file );
-					$attachment->content     = \base64_encode( \file_get_contents( $file ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-					$attachments[]          = $attachment;
+					$info                     = \pathinfo( $file );
+					$attachment               = new stdClass();
+					$attachment->file_name    = $info['basename']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- Paubox API field names.
+					$attachment->content_type = \mime_content_type( $file ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- Paubox API field names.
+					$attachment->content      = \base64_encode( \file_get_contents( $file ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+					$attachments[]            = $attachment;
 				}
 			}
 		}
@@ -222,8 +242,7 @@ class ApiClient {
 	 * @return \WPCF7_FormTag[] Array of form tag objects.
 	 */
 	public function get_mail_tags( \WPCF7_ContactForm $post, array $args ): array {
-		/** @var \WPCF7_FormTag[] $tags */
-		$tags     = apply_filters( 'paubox_cf7_collect_mail_tags', $post->scan_form_tags() );
+		$tags     = apply_filters( 'paubox_cf7_collect_mail_tags', $post->scan_form_tags() ); /** @var \WPCF7_FormTag[] $tags */
 		$mailtags = [];
 
 		foreach ( (array) $tags as $tag ) {

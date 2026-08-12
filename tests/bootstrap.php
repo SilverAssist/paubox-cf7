@@ -5,7 +5,7 @@
  */
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 
-if ( 'integration' === ( $_ENV['TESTSUITE'] ?? '' ) ) {
+if ( 'integration' === ( getenv( 'TESTSUITE' ) ?: '' ) ) {
     $wp_tests_dir = getenv( 'WP_TESTS_DIR' ) ?: '/tmp/wordpress-tests-lib';
     if ( ! file_exists( $wp_tests_dir . '/includes/functions.php' ) ) {
         throw new RuntimeException( "WP test suite not found at {$wp_tests_dir}." );

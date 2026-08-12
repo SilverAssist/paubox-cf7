@@ -1,5 +1,7 @@
 <?php
 /**
+ * Main plugin bootstrap.
+ *
  * @package SilverAssist\PauboxCF7
  * @copyright Silver Assist. All rights reserved.
  * @version 1.0.0
