@@ -44,26 +44,34 @@ jobs:
       - name: Install dependencies (prod only)
         run: composer install --no-dev --no-interaction --optimize-autoloader
 
-      - name: Build release ZIP
+      - name: Update version
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          PLUGIN_SLUG="paubox-cf7"
-          ZIP_NAME="${PLUGIN_SLUG}-v${VERSION}.zip"
-          mkdir -p "build/${PLUGIN_SLUG}"
-          rsync -a --exclude='build' --exclude='.git' --exclude='.github' \
-            --exclude='tests' --exclude='scripts' --exclude='.gitignore' \
-            --exclude='phpcs.xml' --exclude='phpstan.neon' --exclude='phpunit.xml' \
-            --exclude='*.md' --exclude='composer.lock' \
-            . "build/${PLUGIN_SLUG}/"
-          cd build && zip -r "../${ZIP_NAME}" "${PLUGIN_SLUG}/"
-          echo "zip_name=${ZIP_NAME}" >> $GITHUB_OUTPUT
-          echo "Built: ${ZIP_NAME}"
-        id: build
+          if [ -f "scripts/update-version-simple.sh" ]; then
+            chmod +x scripts/update-version-simple.sh
+            ./scripts/update-version-simple.sh "$VERSION" --no-confirm --force
+          fi
+
+      - name: Code quality
+        run: |
+          composer install --no-interaction --quiet
+          vendor/bin/phpcs --runtime-set ignore_warnings_on_exit 1
+          vendor/bin/phpstan analyse --no-progress
+
+      - name: Build release ZIP
+        run: |
+          chmod +x scripts/build-release.sh
+          ./scripts/build-release.sh "${{ steps.version.outputs.version }}"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2.2.2
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           tag_name: "v${{ steps.version.outputs.version }}"
           name: "v${{ steps.version.outputs.version }}"
-          files: "${{ steps.build.outputs.zip_name }}"
+          files: |
+            build/*.zip
+            build/*.md5
+            build/*.sha256
           generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
