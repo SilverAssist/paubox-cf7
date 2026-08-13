@@ -23,6 +23,7 @@
  * Domain Path: /languages
  * Requires Plugins: contact-form-7
  * Network: false
+ * Update URI: https://github.com/SilverAssist/paubox-cf7
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -60,3 +61,5 @@ add_action(
 		\SilverAssist\PauboxCF7\Core\Plugin::instance()->init();
 	}
 );
+
+register_uninstall_hook( __FILE__, [ \SilverAssist\PauboxCF7\Core\Activator::class, 'uninstall' ] );
