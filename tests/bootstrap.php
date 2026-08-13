@@ -1,6 +1,6 @@
 <?php
 /**
- * Paubox CF7 Integration — PHPUnit Bootstrap
+ * Paubox CF7 Integration - PHPUnit Bootstrap
  *
  * Unit tests load the autoloader only. Integration tests also bootstrap
  * the WordPress test suite from WP_TESTS_DIR.
