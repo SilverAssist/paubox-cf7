@@ -35,7 +35,7 @@ class ApiClientTest extends WP_UnitTestCase {
 	 */
 	public function set_up(): void {
 		parent::set_up();
-		$this->client = ApiClient::instance();
+		$this->client = new ApiClient();
 	}
 
 	/**
@@ -54,7 +54,8 @@ class ApiClientTest extends WP_UnitTestCase {
 
 	/** Missing credentials → WP_Error before any HTTP call. */
 	public function test_send_mail_returns_wp_error_when_credentials_missing(): void {
-		$result = $this->client->send_mail( 'from@test.com', [ 'to@test.com' ], 'Subject', 'Body', [] );
+		// @phpcs:ignore WordPress.PHP.NoSilencedErrors -- we expect the wp_trigger_error warning.
+		$result = @$this->client->send_mail( 'from@test.com', [ 'to@test.com' ], 'Subject', 'Body', [] );
 
 		$this->assertWPError( $result );
 		$this->assertSame( 'paubox_api_error', $result->get_error_code() );
@@ -65,7 +66,8 @@ class ApiClientTest extends WP_UnitTestCase {
 		update_option( 'paubox_api_key', 'test-key' );
 		update_option( 'paubox_api_user', 'test-user' );
 
-		$result = $this->client->send_mail( 'from@test.com', [ '', '  ', 'not-an-email' ], 'Subject', 'Body', [] );
+		// @phpcs:ignore WordPress.PHP.NoSilencedErrors -- we expect the wp_trigger_error warning.
+		$result = @$this->client->send_mail( 'from@test.com', [ '', '  ', 'not-an-email' ], 'Subject', 'Body', [] );
 
 		$this->assertWPError( $result );
 		$this->assertSame( 'paubox_api_error', $result->get_error_code() );
@@ -90,7 +92,8 @@ class ApiClientTest extends WP_UnitTestCase {
 			]
 		);
 
-		$result = $this->client->send_mail( 'from@test.com', [ 'to@test.com' ], 'Subject', 'Body', [] );
+		// @phpcs:ignore WordPress.PHP.NoSilencedErrors -- we expect the wp_trigger_error warning.
+		$result = @$this->client->send_mail( 'from@test.com', [ 'to@test.com' ], 'Subject', 'Body', [] );
 
 		$this->assertWPError( $result );
 		$this->assertSame( 'paubox_api_http_error', $result->get_error_code() );
@@ -115,7 +118,8 @@ class ApiClientTest extends WP_UnitTestCase {
 			]
 		);
 
-		$result = $this->client->send_mail( 'from@test.com', [ 'to@test.com' ], 'Subject', 'Body', [] );
+		// @phpcs:ignore WordPress.PHP.NoSilencedErrors -- we expect the wp_trigger_error warning.
+		$result = @$this->client->send_mail( 'from@test.com', [ 'to@test.com' ], 'Subject', 'Body', [] );
 
 		$this->assertWPError( $result );
 	}
