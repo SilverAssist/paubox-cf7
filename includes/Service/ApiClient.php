@@ -244,7 +244,7 @@ class ApiClient {
 	 * @return \WPCF7_FormTag[] Array of form tag objects.
 	 */
 	public function get_mail_tags( \WPCF7_ContactForm $post, array $args ): array {
-		/** @var array<\WPCF7_FormTag> Collected form tags from the current form. */
+		// @var array<\WPCF7_FormTag> $tags
 		$tags     = apply_filters( 'paubox_cf7_collect_mail_tags', $post->scan_form_tags() );
 		$mailtags = [];
 
