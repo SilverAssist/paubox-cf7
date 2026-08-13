@@ -15,6 +15,9 @@ vendor/
 coverage/
 build/
 
+# PHPUnit local cache
+.phpunit.result.cache
+
 # macOS
 .DS_Store
 *.swp
