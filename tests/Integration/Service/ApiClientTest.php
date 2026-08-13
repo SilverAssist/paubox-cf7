@@ -24,6 +24,8 @@ use WP_UnitTestCase;
 class ApiClientTest extends WP_UnitTestCase {
 
 	/**
+	 * Paubox API client under test.
+	 *
 	 * @var ApiClient
 	 */
 	private ApiClient $client;
