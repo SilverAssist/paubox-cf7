@@ -15,7 +15,7 @@ require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 // Unit tests run without WordPress — define ABSPATH so the guard in each plugin
 // file does not exit() before the class body is loaded.
 if ( ! \defined( 'ABSPATH' ) ) {
-	\define( 'ABSPATH', dirname( __DIR__ ) . '/' );
+	\define( 'ABSPATH', dirname( __DIR__ ) . '/' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
 }
 
 if ( 'integration' === ( getenv( 'TESTSUITE' ) ?: '' ) ) {
