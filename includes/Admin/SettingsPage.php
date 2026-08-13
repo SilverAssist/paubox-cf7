@@ -52,9 +52,11 @@ class SettingsPage implements LoadableInterface {
 	/**
 	 * WordPress option names managed by this plugin.
 	 *
+	 * Also used by Activator::uninstall() to clean these up.
+	 *
 	 * @var string[]
 	 */
-	private const OPTIONS = [ 'paubox_api_key', 'paubox_api_user' ];
+	public const OPTIONS = [ 'paubox_api_key', 'paubox_api_user' ];
 
 	/** Returns false when not in the admin or when SettingsHub is unavailable. */
 	public function should_load(): bool {
