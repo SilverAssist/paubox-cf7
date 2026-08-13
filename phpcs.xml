@@ -23,6 +23,11 @@
         <exclude-pattern>tests/*</exclude-pattern>
     </rule>
 
+    <!-- bootstrap.php is a script, not a class file; FileComment sniff does not apply. -->
+    <rule ref="Squiz.Commenting.FileComment.Missing">
+        <exclude-pattern>tests/bootstrap.php</exclude-pattern>
+    </rule>
+
     <config name="minimum_wp_version" value="6.5"/>
 
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">

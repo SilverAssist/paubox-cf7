@@ -15,10 +15,4 @@
             <directory>tests/Integration</directory>
         </testsuite>
     </testsuites>
-
-    <source>
-        <include>
-            <directory>includes</directory>
-        </include>
-    </source>
 </phpunit>

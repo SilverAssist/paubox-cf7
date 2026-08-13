@@ -11,12 +11,12 @@ vendor/
 !vendor/autoload.php
 !vendor/composer/
 
-# Composer binaries
-composer.phar
-
 # Build / coverage
 coverage/
 build/
+
+# PHPUnit local cache
+.phpunit.result.cache
 
 # macOS
 .DS_Store
