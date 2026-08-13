@@ -178,12 +178,12 @@ class ApiClient {
 			}
 			foreach ( $paths as $file ) {
 				if ( ! empty( $file ) && \file_exists( $file ) ) {
-					$info                     = \pathinfo( $file );
-					$attachment               = new stdClass();
-					$attachment->file_name    = $info['basename']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- Paubox API field names.
-					$attachment->content_type = \mime_content_type( $file ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- Paubox API field names.
-					$attachment->content      = \base64_encode( \file_get_contents( $file ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-					$attachments[]            = $attachment;
+					$info                    = \pathinfo( $file );
+					$attachment              = new stdClass();
+					$attachment->fileName    = $info['basename']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- Paubox API requires this exact camelCase field name.
+					$attachment->contentType = \mime_content_type( $file ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- Paubox API requires this exact camelCase field name.
+					$attachment->content     = \base64_encode( \file_get_contents( $file ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+					$attachments[]           = $attachment;
 				}
 			}
 		}
