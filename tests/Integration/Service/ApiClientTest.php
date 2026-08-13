@@ -16,18 +16,29 @@ use SilverAssist\PauboxCF7\Service\ApiClient;
 use WP_UnitTestCase;
 
 /**
+ * Integration tests for ApiClient.
+ *
  * @covers \SilverAssist\PauboxCF7\Service\ApiClient
  * @since 1.0.0
  */
 class ApiClientTest extends WP_UnitTestCase {
 
+	/**
+	 * @var ApiClient
+	 */
 	private ApiClient $client;
 
+	/**
+	 * Set up the test fixture.
+	 */
 	public function set_up(): void {
 		parent::set_up();
 		$this->client = ApiClient::instance();
 	}
 
+	/**
+	 * Tear down the test fixture.
+	 */
 	public function tear_down(): void {
 		remove_filter( 'pre_http_request', [ $this, 'mock_http_request' ] );
 		delete_option( 'paubox_api_key' );
@@ -63,7 +74,19 @@ class ApiClientTest extends WP_UnitTestCase {
 		update_option( 'paubox_api_key', 'test-key' );
 		update_option( 'paubox_api_user', 'test-user' );
 
-		add_filter( 'pre_http_request', static fn() => [ 'response' => [ 'code' => 401, 'message' => 'Unauthorized' ], 'body' => 'Unauthorized', 'headers' => [], 'cookies' => [], 'filename' => '' ] );
+		add_filter(
+			'pre_http_request',
+			static fn() => [
+				'response' => [
+					'code'    => 401,
+					'message' => 'Unauthorized',
+				],
+				'body'     => 'Unauthorized',
+				'headers'  => [],
+				'cookies'  => [],
+				'filename' => '',
+			]
+		);
 
 		$result = $this->client->send_mail( 'from@test.com', [ 'to@test.com' ], 'Subject', 'Body', [] );
 
@@ -76,7 +99,19 @@ class ApiClientTest extends WP_UnitTestCase {
 		update_option( 'paubox_api_key', 'test-key' );
 		update_option( 'paubox_api_user', 'test-user' );
 
-		add_filter( 'pre_http_request', static fn() => [ 'response' => [ 'code' => 500, 'message' => 'Server Error' ], 'body' => 'Error', 'headers' => [], 'cookies' => [], 'filename' => '' ] );
+		add_filter(
+			'pre_http_request',
+			static fn() => [
+				'response' => [
+					'code'    => 500,
+					'message' => 'Server Error',
+				],
+				'body'     => 'Error',
+				'headers'  => [],
+				'cookies'  => [],
+				'filename' => '',
+			]
+		);
 
 		$result = $this->client->send_mail( 'from@test.com', [ 'to@test.com' ], 'Subject', 'Body', [] );
 
@@ -88,7 +123,19 @@ class ApiClientTest extends WP_UnitTestCase {
 		update_option( 'paubox_api_key', 'test-key' );
 		update_option( 'paubox_api_user', 'test-user' );
 
-		add_filter( 'pre_http_request', static fn() => [ 'response' => [ 'code' => 200, 'message' => 'OK' ], 'body' => '{"sourceTrackingId":"abc"}', 'headers' => [], 'cookies' => [], 'filename' => '' ] );
+		add_filter(
+			'pre_http_request',
+			static fn() => [
+				'response' => [
+					'code'    => 200,
+					'message' => 'OK',
+				],
+				'body'     => '{"sourceTrackingId":"abc"}',
+				'headers'  => [],
+				'cookies'  => [],
+				'filename' => '',
+			]
+		);
 
 		$result = $this->client->send_mail( 'from@test.com', [ 'to@test.com' ], 'Subject', 'Body', [] );
 
@@ -104,9 +151,17 @@ class ApiClientTest extends WP_UnitTestCase {
 	public function test_get_email_body_replaces_known_placeholders(): void {
 		$submission = $this->createMock( \WPCF7_Submission::class );
 		$submission->method( 'get_posted_data' )
-			->willReturn( [ 'your-name' => 'Alice', 'your-email' => 'alice@test.com' ] );
+			->willReturn(
+				[
+					'your-name'  => 'Alice',
+					'your-email' => 'alice@test.com',
+				]
+			);
 
-		$data     = [ 'your-name' => 'your-name', 'your-email' => 'your-email' ];
+		$data     = [
+			'your-name'  => 'your-name',
+			'your-email' => 'your-email',
+		];
 		$template = 'Hello [your-name], reply to [your-email].';
 
 		$result = $this->client->get_email_body( $submission, $data, $template );

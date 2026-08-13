@@ -13,6 +13,8 @@ use SilverAssist\PauboxCF7\CF7\Integration;
 use WP_UnitTestCase;
 
 /**
+ * Integration tests for CF7 Integration component.
+ *
  * @covers \SilverAssist\PauboxCF7\CF7\Integration
  * @since 1.0.0
  */
@@ -22,7 +24,7 @@ class IntegrationTest extends WP_UnitTestCase {
 	// LoadableInterface contract
 	// -----------------------------------------------------------------------
 
-	/** should_load() returns false when WPCF7_ContactForm is unavailable. */
+	/** Should_load() returns false when WPCF7_ContactForm is unavailable. */
 	public function test_should_load_returns_false_without_cf7(): void {
 		// Rename the stub so class_exists() returns false for this test.
 		if ( class_exists( 'WPCF7_ContactForm' ) ) {
@@ -32,7 +34,7 @@ class IntegrationTest extends WP_UnitTestCase {
 		$this->assertFalse( Integration::instance()->should_load() );
 	}
 
-	/** get_priority() is 20 (loads between core:10 and admin:30). */
+	/** Get_priority() is 20 (loads between core:10 and admin:30). */
 	public function test_get_priority_returns_20(): void {
 		$this->assertSame( 20, Integration::instance()->get_priority() );
 	}
@@ -41,7 +43,7 @@ class IntegrationTest extends WP_UnitTestCase {
 	// add_paubox_tab()
 	// -----------------------------------------------------------------------
 
-	/** add_paubox_tab() appends a 'paubox-api-integration' panel entry. */
+	/** Add_paubox_tab() appends a 'paubox-api-integration' panel entry. */
 	public function test_add_paubox_tab_appends_panel(): void {
 		$panels = Integration::instance()->add_paubox_tab( [] );
 
@@ -50,9 +52,14 @@ class IntegrationTest extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'callback', $panels['paubox-api-integration'] );
 	}
 
-	/** add_paubox_tab() preserves existing panels. */
+	/** Add_paubox_tab() preserves existing panels. */
 	public function test_add_paubox_tab_preserves_existing_panels(): void {
-		$existing = [ 'mail' => [ 'title' => 'Mail', 'callback' => 'some_fn' ] ];
+		$existing = [
+			'mail' => [
+				'title'    => 'Mail',
+				'callback' => 'some_fn',
+			],
+		];
 		$result   = Integration::instance()->add_paubox_tab( $existing );
 
 		$this->assertArrayHasKey( 'mail', $result );
@@ -62,7 +69,7 @@ class IntegrationTest extends WP_UnitTestCase {
 	// add_sf_properties()
 	// -----------------------------------------------------------------------
 
-	/** add_sf_properties() seeds all six Paubox keys when absent. */
+	/** Add_sf_properties() seeds all six Paubox keys when absent. */
 	public function test_add_sf_properties_adds_all_required_keys(): void {
 		$result = Integration::instance()->add_sf_properties( [] );
 
@@ -81,7 +88,7 @@ class IntegrationTest extends WP_UnitTestCase {
 		}
 	}
 
-	/** add_sf_properties() does not overwrite keys already set. */
+	/** Add_sf_properties() does not overwrite keys already set. */
 	public function test_add_sf_properties_does_not_overwrite_existing_values(): void {
 		$existing = [ 'paubox_mail_from' => 'existing@test.com' ];
 		$result   = Integration::instance()->add_sf_properties( $existing );
