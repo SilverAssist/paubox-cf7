@@ -80,4 +80,4 @@ jobs:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib
           WP_CORE_DIR: /tmp/wordpress
           TESTSUITE: integration
-        run: vendor/bin/phpunit --testsuite=integration
+        run: composer test:integration

@@ -63,8 +63,9 @@
         "phpcs": "phpcs",
         "phpcbf": "phpcbf",
         "phpstan": "phpstan analyse includes/ --level=8",
-        "test": "phpunit",
-        "test:coverage": "phpunit --coverage-html coverage",
+        "test": "phpunit --testsuite=unit",
+        "test:integration": "TESTSUITE=integration phpunit --testsuite=integration",
+        "test:coverage": "phpunit --testsuite=unit --coverage-html coverage",
         "check": [
             "@phpcs",
             "@phpstan",
