@@ -18,4 +18,9 @@ if ( 'integration' === ( getenv( 'TESTSUITE' ) ?: '' ) ) {
 		throw new \RuntimeException( 'WP test suite not found at ' . $paubox_cf7_tests_dir . '.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 	}
 	require_once $paubox_cf7_tests_dir . '/includes/bootstrap.php';
+
+	// Load CF7 stubs when CF7 is not installed in the test environment.
+	if ( ! class_exists( 'WPCF7_ContactForm' ) ) {
+		require_once dirname( __DIR__ ) . '/vendor/miguelcolmenares/cf7-stubs/contact-form-7-stubs.php';
+	}
 }
