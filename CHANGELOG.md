@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-08-17
+
 ### 📝 Documentation
 
 - Added a Trademark Notice & Compliance section to the README, covering both the Paubox and Contact Form 7 trademarks (independent-integration disclaimer, no affiliation/endorsement)

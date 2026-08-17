@@ -8,7 +8,7 @@
  *
  * @package SilverAssist\PauboxCF7\CF7
  * @since   1.0.0
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace SilverAssist\PauboxCF7\CF7;
