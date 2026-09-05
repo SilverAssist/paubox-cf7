@@ -13,6 +13,7 @@
 namespace SilverAssist\PauboxCF7\Admin;
 
 use SilverAssist\PauboxCF7\Core\Plugin;
+use SilverAssist\PauboxCF7\Service\DeliveryLog;
 use SilverAssist\PluginKernel\Interfaces\LoadableInterface;
 use SilverAssist\SettingsHub\SettingsHub;
 
@@ -180,6 +181,66 @@ class SettingsPage implements LoadableInterface {
 			</table>
 			<?php \submit_button(); ?>
 		</form>
+		<?php
+		$this->render_recent_deliveries();
+	}
+
+	/**
+	 * Renders a "Recent Deliveries" table from the delivery log, for
+	 * at-a-glance debugging without digging through the debug log.
+	 *
+	 * @return void
+	 */
+	private function render_recent_deliveries(): void {
+		$rows = DeliveryLog::get_recent( 20 );
+		?>
+		<h2><?php \esc_html_e( 'Recent Deliveries', 'paubox-cf7' ); ?></h2>
+		<?php if ( empty( $rows ) ) : ?>
+			<p><?php \esc_html_e( 'No Paubox delivery attempts recorded yet.', 'paubox-cf7' ); ?></p>
+		<?php else : ?>
+			<table class="wp-list-table widefat fixed striped">
+				<thead>
+					<tr>
+						<th><?php \esc_html_e( 'Date', 'paubox-cf7' ); ?></th>
+						<th><?php \esc_html_e( 'Form', 'paubox-cf7' ); ?></th>
+						<th><?php \esc_html_e( 'Status', 'paubox-cf7' ); ?></th>
+						<th><?php \esc_html_e( 'HTTP Code', 'paubox-cf7' ); ?></th>
+						<th><?php \esc_html_e( 'Error', 'paubox-cf7' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $rows as $row ) : ?>
+						<tr>
+							<td>
+								<?php
+								echo esc_html(
+									\mysql2date(
+										\get_option( 'date_format' ) . ' ' . \get_option( 'time_format' ),
+										$row->created_at
+									)
+								);
+								?>
+							</td>
+							<td>
+								<?php
+								$form_title = \get_the_title( (int) $row->form_id );
+								echo esc_html( $form_title ? $form_title : '#' . $row->form_id );
+								?>
+							</td>
+							<td>
+								<?php if ( $row->success ) : ?>
+									<span style="color:#008a20;">✅ <?php \esc_html_e( 'Delivered', 'paubox-cf7' ); ?></span>
+								<?php else : ?>
+									<span style="color:#d63638;">⚠️ <?php \esc_html_e( 'Failed', 'paubox-cf7' ); ?></span>
+								<?php endif; ?>
+							</td>
+							<td><?php echo esc_html( (string) $row->http_code ); ?></td>
+							<td><?php echo esc_html( $row->error_message ); ?></td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		<?php endif; ?>
 		<?php
 	}
 }

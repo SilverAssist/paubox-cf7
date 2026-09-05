@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🐛 Fixed
+
+- Contact Form 7 always reports a Paubox-routed submission's abort of its own mailer as status `aborted` (never `mail_sent`), even when Paubox delivered the email successfully — every successful submission was surfaced to the site as an error. `CF7\Integration` now reconciles the `wpcf7_submission_result` filter's status back to `mail_sent` whenever the abort was caused by a confirmed Paubox delivery.
+
+### ✨ Added
+
+- Lightweight delivery logging: each Paubox send attempt now records `form_id`, `success`, `http_code`, and `error_message` (metadata only, never the email body or attachments) to the debug log with a `[Paubox CF7]` prefix, for at-a-glance delivery monitoring.
+- Delivery history: send attempts are now also persisted to a new `{$wpdb->prefix}paubox_cf7_delivery_log` table (created on activation and self-healed on upgrade via `Core\Activator`), and the settings page now lists the most recent deliveries/failures — form, status, HTTP code, error — for at-a-glance debugging without digging through the debug log.
+
 ## [1.0.1] - 2026-08-17
 
 ### 📝 Documentation
