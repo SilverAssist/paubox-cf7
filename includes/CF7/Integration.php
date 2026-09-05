@@ -57,6 +57,17 @@ class Integration implements LoadableInterface {
 	private ApiClient $api_client;
 
 	/**
+	 * Outcome of the most recent Paubox delivery attempt.
+	 *
+	 * Null before any attempt has been made this request; true/false once
+	 * `send_data_to_api()` has run. Read by `reconcile_aborted_status()` to
+	 * tell a Paubox-triggered abort apart from any other abort reason.
+	 *
+	 * @var bool|null
+	 */
+	private ?bool $paubox_delivered = null;
+
+	/**
 	 * Private constructor — use instance() instead.
 	 */
 	private function __construct() {
@@ -92,6 +103,7 @@ class Integration implements LoadableInterface {
 		add_action( 'wpcf7_save_contact_form', [ $this, 'save_contact_form_details' ], 10, 1 );
 		add_filter( 'wpcf7_editor_panels', [ $this, 'add_paubox_tab' ], 1, 1 );
 		add_filter( 'wpcf7_contact_form_properties', [ $this, 'add_sf_properties' ], 10, 1 );
+		add_filter( 'wpcf7_submission_result', [ $this, 'reconcile_aborted_status' ], 10, 2 );
 	}
 
 	/**
@@ -280,10 +292,67 @@ class Integration implements LoadableInterface {
 
 		do_action( 'paubox_cf7_api_after_sent_to_api', $email_body, $response );
 
+		// Recorded for reconcile_aborted_status(): CF7 always reports this abort as
+		// 'aborted', never 'mail_sent', regardless of why the mail was aborted.
+		$this->paubox_delivered = ! \is_wp_error( $response );
+
+		$this->log_delivery( $form_id, $response );
+
 		// Abort CF7's default mailer only when Paubox delivered successfully.
-		if ( ! \is_wp_error( $response ) ) {
+		if ( $this->paubox_delivered ) {
 			$abort = true;
 		}
+	}
+
+	/**
+	 * Rewrites CF7's "aborted" result back to "mail_sent" once Paubox has
+	 * confirmed delivery.
+	 *
+	 * `send_data_to_api()` sets `$abort = true` when Paubox delivery succeeds,
+	 * which prevents CF7's own mailer from sending a duplicate email — but CF7
+	 * core (`WPCF7_Submission::proceed()`) always reports an abort as status
+	 * "aborted", never "mail_sent", regardless of why mail sending was
+	 * aborted. Without this, every successful Paubox-routed submission is
+	 * surfaced to the client as an error, even though the email was
+	 * delivered (see WEB-1180).
+	 *
+	 * @param array            $result     Submission result properties (status, message, ...).
+	 * @param WPCF7_Submission $submission The current submission instance.
+	 * @return array Result array, with status/message corrected when applicable.
+	 */
+	public function reconcile_aborted_status( array $result, WPCF7_Submission $submission ): array {
+		if ( true === $this->paubox_delivered && 'aborted' === ( $result['status'] ?? '' ) ) {
+			$result['status']  = 'mail_sent';
+			$result['message'] = $submission->get_contact_form()->message( 'mail_sent_ok' );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Records the outcome of a Paubox delivery attempt to the debug log.
+	 *
+	 * Metadata only — form ID, success flag, HTTP status, and error message
+	 * on failure. Never logs the email body or attachments, which may
+	 * contain PHI for this HIPAA-relevant delivery path.
+	 *
+	 * @param int             $form_id  The CF7 form ID being submitted.
+	 * @param array|\WP_Error $response The ApiClient::send_mail() return value.
+	 * @return void
+	 */
+	private function log_delivery( int $form_id, array|\WP_Error $response ): void {
+		$success = ! \is_wp_error( $response );
+
+		$entry = [
+			'form_id'       => $form_id,
+			'success'       => $success,
+			'http_code'     => $success ? (int) wp_remote_retrieve_response_code( $response ) : 0,
+			'error_message' => $success ? '' : $response->get_error_message(),
+			'timestamp'     => \gmdate( 'c' ),
+		];
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- intentional delivery-monitoring log entry (metadata only), see docblock.
+		error_log( '[Paubox CF7] ' . wp_json_encode( $entry ) );
 	}
 
 	/**
