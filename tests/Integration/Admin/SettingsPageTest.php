@@ -10,6 +10,7 @@
 namespace SilverAssist\PauboxCF7\Tests\Integration\Admin;
 
 use SilverAssist\PauboxCF7\Admin\SettingsPage;
+use SilverAssist\PauboxCF7\Service\DeliveryLog;
 use WP_UnitTestCase;
 
 /**
@@ -67,5 +68,31 @@ class SettingsPageTest extends WP_UnitTestCase {
 		global $wp_registered_settings;
 		$this->assertSame( 'paubox_cf7_settings', $wp_registered_settings['paubox_api_key']['group'] );
 		$this->assertSame( 'paubox_cf7_settings', $wp_registered_settings['paubox_api_user']['group'] );
+	}
+
+	// -----------------------------------------------------------------------
+	// render_settings_page() — Recent Deliveries section
+	// -----------------------------------------------------------------------
+
+	/** Render_settings_page() shows the empty-state message when there are no delivery log rows. */
+	public function test_render_settings_page_shows_empty_state_when_no_deliveries(): void {
+		\ob_start();
+		SettingsPage::instance()->render_settings_page();
+		$output = \ob_get_clean();
+
+		$this->assertStringContainsString( 'No Paubox delivery attempts recorded yet.', $output );
+	}
+
+	/** Render_settings_page() lists a recorded delivery, including its error message. */
+	public function test_render_settings_page_lists_a_recorded_delivery(): void {
+		DeliveryLog::record( 123, false, 500, 'Server Error' );
+
+		\ob_start();
+		SettingsPage::instance()->render_settings_page();
+		$output = \ob_get_clean();
+
+		$this->assertStringContainsString( '#123', $output );
+		$this->assertStringContainsString( 'Server Error', $output );
+		$this->assertStringContainsString( 'Failed', $output );
 	}
 }

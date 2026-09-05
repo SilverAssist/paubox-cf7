@@ -15,6 +15,7 @@ WordPress plugin that routes Contact Form 7 submissions through the [Paubox](htt
 - **⚙️ Centralized Credentials**: API key and API user are configured once, via Silver Assist Settings Hub (or a standalone settings page when the hub isn't installed) — no per-form credential duplication
 - **🔄 Automatic Updates**: Built-in GitHub-based update system via `silverassist/wp-github-updater`
 - **🛡️ Fails Safe**: Contact Form 7 must be active for any of this plugin's components to load; without valid API credentials, `send_mail()` returns a `WP_Error` rather than silently dropping the submission
+- **📊 Delivery Log**: A "Recent Deliveries" table on the settings page lists the most recent Paubox send attempts (form, status, HTTP code, error) for at-a-glance debugging — metadata only, never the email body or attachments
 
 ## Requirements
 

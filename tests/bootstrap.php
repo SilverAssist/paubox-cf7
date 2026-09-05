@@ -28,4 +28,10 @@ if ( 'integration' === ( getenv( 'TESTSUITE' ) ?: '' ) ) {
 	if ( ! class_exists( 'WPCF7_ContactForm' ) ) {
 		require_once dirname( __DIR__ ) . '/vendor/miguelcolmenares/cf7-stubs/contact-form-7-stubs.php';
 	}
+
+	// Create the delivery log table exactly once, before any test class runs.
+	// dbDelta() (CREATE/DROP TABLE) implicitly commits, which conflicts with
+	// WP_UnitTestCase's per-test transaction wrapper — running it here, before
+	// that wrapper exists for any test, keeps every other test's isolation intact.
+	\SilverAssist\PauboxCF7\Service\DeliveryLog::create_table();
 }
