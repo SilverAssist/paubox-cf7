@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### ✨ Added
 
 - Lightweight delivery logging: each Paubox send attempt now records `form_id`, `success`, `http_code`, and `error_message` (metadata only, never the email body or attachments) to the debug log with a `[Paubox CF7]` prefix, for at-a-glance delivery monitoring.
+- Delivery history: send attempts are now also persisted to a new `{$wpdb->prefix}paubox_cf7_delivery_log` table (created on activation and self-healed on upgrade via `Core\Activator`), and the settings page now lists the most recent deliveries/failures — form, status, HTTP code, error — for at-a-glance debugging without digging through the debug log.
 
 ## [1.0.1] - 2026-08-17
 

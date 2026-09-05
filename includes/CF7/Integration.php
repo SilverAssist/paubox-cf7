@@ -14,6 +14,7 @@
 namespace SilverAssist\PauboxCF7\CF7;
 
 use SilverAssist\PauboxCF7\Service\ApiClient;
+use SilverAssist\PauboxCF7\Service\DeliveryLog;
 use SilverAssist\PluginKernel\Interfaces\LoadableInterface;
 use WPCF7_ContactForm;
 use WPCF7_Submission;
@@ -330,7 +331,9 @@ class Integration implements LoadableInterface {
 	}
 
 	/**
-	 * Records the outcome of a Paubox delivery attempt to the debug log.
+	 * Records the outcome of a Paubox delivery attempt — to the debug log
+	 * for real-time tailing, and to the delivery log table (DeliveryLog) so
+	 * SettingsPage can list recent deliveries/failures at a glance.
 	 *
 	 * Metadata only — form ID, success flag, HTTP status, and error message
 	 * on failure. Never logs the email body or attachments, which may
@@ -341,18 +344,22 @@ class Integration implements LoadableInterface {
 	 * @return void
 	 */
 	private function log_delivery( int $form_id, array|\WP_Error $response ): void {
-		$success = ! \is_wp_error( $response );
+		$success       = ! \is_wp_error( $response );
+		$http_code     = $success ? (int) wp_remote_retrieve_response_code( $response ) : 0;
+		$error_message = $success ? '' : $response->get_error_message();
 
 		$entry = [
 			'form_id'       => $form_id,
 			'success'       => $success,
-			'http_code'     => $success ? (int) wp_remote_retrieve_response_code( $response ) : 0,
-			'error_message' => $success ? '' : $response->get_error_message(),
+			'http_code'     => $http_code,
+			'error_message' => $error_message,
 			'timestamp'     => \gmdate( 'c' ),
 		];
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- intentional delivery-monitoring log entry (metadata only), see docblock.
 		error_log( '[Paubox CF7] ' . wp_json_encode( $entry ) );
+
+		DeliveryLog::record( $form_id, $success, $http_code, $error_message );
 	}
 
 	/**

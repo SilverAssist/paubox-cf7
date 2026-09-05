@@ -62,4 +62,5 @@ add_action(
 	}
 );
 
+register_activation_hook( __FILE__, [ \SilverAssist\PauboxCF7\Core\Activator::class, 'activate' ] );
 register_uninstall_hook( __FILE__, [ \SilverAssist\PauboxCF7\Core\Activator::class, 'uninstall' ] );

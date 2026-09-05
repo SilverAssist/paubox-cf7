@@ -65,6 +65,7 @@ final class Plugin extends AbstractPlugin {
 	 * @return void
 	 */
 	protected function init_hooks(): void {
+		Activator::maybe_upgrade();
 		$this->init_updater();
 	}
 
