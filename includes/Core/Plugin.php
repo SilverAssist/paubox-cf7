@@ -7,7 +7,7 @@
  *
  * @package SilverAssist\PauboxCF7\Core
  * @since   1.0.0
- * @version 1.0.1
+ * @version 1.1.0
  */
 
 namespace SilverAssist\PauboxCF7\Core;

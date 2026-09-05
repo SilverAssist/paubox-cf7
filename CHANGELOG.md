@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-05
+
 ### 🐛 Fixed
 
 - Contact Form 7 always reports a Paubox-routed submission's abort of its own mailer as status `aborted` (never `mail_sent`), even when Paubox delivered the email successfully — every successful submission was surfaced to the site as an error. `CF7\Integration` now reconciles the `wpcf7_submission_result` filter's status back to `mail_sent` whenever the abort was caused by a confirmed Paubox delivery.
