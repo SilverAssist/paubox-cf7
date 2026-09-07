@@ -72,7 +72,10 @@
             "@test"
         ],
         "install:dev": "composer install --optimize-autoloader",
-        "install:prod": "composer install --no-dev --optimize-autoloader"
+        "install:prod": "composer install --no-dev --optimize-autoloader",
+        "setup-hooks": "git config core.hooksPath .githooks",
+        "post-install-cmd": "@setup-hooks",
+        "post-update-cmd": "@setup-hooks"
     },
     "extra": {
         "installer-name": "paubox-cf7"

@@ -81,6 +81,10 @@ composer test        # Unit tests
 composer test:integration  # Integration tests (requires the WP test suite)
 ```
 
+`composer install` also points Git at `.githooks/` (`core.hooksPath`), which strips any AI
+attribution trailer (`Co-Authored-By: Claude ...`, etc.) from commit messages — commits in this
+repo are authored solely by the human.
+
 ## License
 
 Polyform Noncommercial License 1.0.0 — see [LICENSE](LICENSE).
