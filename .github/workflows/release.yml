@@ -43,6 +43,8 @@ jobs:
 
       - name: Install dependencies (prod only)
         run: composer install --no-dev --no-interaction --optimize-autoloader
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
 
       - name: Update version
         run: |
@@ -57,9 +59,13 @@ jobs:
           composer install --no-interaction --quiet
           vendor/bin/phpcs --runtime-set ignore_warnings_on_exit 1
           vendor/bin/phpstan analyse --no-progress
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
 
       - name: Regenerate production autoloader
         run: composer install --no-dev --no-interaction --optimize-autoloader
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
 
       - name: Build release ZIP
         run: |
