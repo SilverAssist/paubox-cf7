@@ -12,7 +12,7 @@
  * Plugin Name: Paubox CF7 Integration
  * Plugin URI: https://github.com/SilverAssist/paubox-cf7
  * Description: Integrates Contact Form 7 with the Paubox encrypted email API.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Requires at least: 6.5
  * Requires PHP: 8.2
  * Author: Silver Assist
@@ -28,7 +28,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'PAUBOX_CF7_VERSION', '1.1.0' );
+define( 'PAUBOX_CF7_VERSION', '1.1.1' );
 define( 'PAUBOX_CF7_FILE', __FILE__ );
 define( 'PAUBOX_CF7_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PAUBOX_CF7_URL', plugin_dir_url( __FILE__ ) );

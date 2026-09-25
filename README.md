@@ -71,6 +71,17 @@ On submission, the plugin builds the message from the template, resolves attachm
 
 The plugin checks this GitHub repository for new releases and can update itself directly from the WordPress admin, with no separate configuration required — see the **Check Updates** button next to the plugin's Settings Hub entry.
 
+## Composer authentication (private packages)
+
+The SilverAssist packages this plugin uses (`wp-github-updater`, `wp-plugin-kernel`, `wp-settings-hub`, `coding-standards` and `wp-coding-standards`) are installed from their GitHub repositories through Composer `vcs` repositories declared in `composer.json` (with `"no-api": true`, so Composer reads tags with git and does not spend the GitHub API quota of the token), not from Packagist.org. Those repositories can require authentication, so configure a token before running `composer install`:
+
+- **Locally:** `composer config --global github-oauth.github.com <token>`
+- **CI:** store `{"github-oauth":{"github.com":"<token>"}}` as the repository secret `COMPOSER_AUTH`. The workflows already pass it to `composer install`.
+
+Never commit a token or an `auth.json`.
+
+**Updating from a private repository:** when the plugin's repository is private, the site needs a read-only token in the `SILVER_GITHUB_TOKEN` constant or environment variable so the updater can read the releases. A public repository needs no token.
+
 ## Development
 
 ```bash
